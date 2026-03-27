@@ -1,0 +1,26 @@
+[project]
+name = "goodcang_server"
+version = "0.1.0"
+description = "开发中心服务 - 站点池、产品池、调研、项目、开发产品全流程管理"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.121.3",
+    "uvicorn[standard]>=0.38.0",
+    "sqlalchemy[asyncio]>=2.0.44",
+    "asyncpg>=0.30.0",
+    "alembic>=1.17.2",
+    "pydantic-settings>=2.12.0",
+    "httpx>=0.28.1",
+    "redis>=5.0.0",
+    "loguru>=0.7.3",
+    "orjson>=3.10.0",
+    "gunicorn>=21.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+    "pytest-asyncio>=0.24.0",
+    "anyio>=4.11.0",
+]
