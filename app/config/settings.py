@@ -1,8 +1,8 @@
 from pydantic import computed_field
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
-    
     # 项目信息
     PROJECT_NAME: str = "Goodcang Server"
     API_V1_STR: str = "/api/v1"
@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     SERVICE_NAME: str = "goodcang_server"
     SERVICE_PORT: int = 8010
 
+    # GoodCang API 配置
+    GOODCANG_API_HOST: str = "https://oms.goodcang.net/public_open"
+    GOODCANG_API_KEY: str = ""
+    GOODCANG_CLIENT_CODE: str = ""
+
     @computed_field
     @property
     def DATABASE_URL(self) -> str:
@@ -38,5 +43,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+
 
 settings = Settings()
