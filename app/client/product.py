@@ -5,6 +5,31 @@ from app.client.base import GoodCangBase
 class GoodCangProduct(GoodCangBase):
     """GoodCang 商品 API 客户端"""
 
+    # 获取商品列表
+    async def get_product_sku_list(
+            self,
+            pageSize: str,
+            page: str,
+            product_sku: Optional[str] = None,
+            product_update_time_from: Optional[str] = None,
+            product_update_time_to: Optional[str] = None,
+    ):
+        
+        payload = {
+            pageSize: str,
+            page: str,
+        }
+
+        if product_sku:
+            payload["product_sku"] = product_sku
+        if product_update_time_from:
+            payload["product_update_time_from"] = product_update_time_from
+        if product_update_time_to:
+            payload["product_update_time_to"] = product_update_time_to
+        
+        return await self._post("/product/get_product_sku_list", data=payload)
+
+    # 新建商品
     async def add_product(
         self,
         product_sku: str,
@@ -95,43 +120,102 @@ class GoodCangProduct(GoodCangBase):
         """
         payload = {
             "product_sku": product_sku,
-            "reference_no": reference_no,
             "cat_lang": cat_lang,
             "cat_id_level2": cat_id_level2,
             "product_name_cn": product_name_cn,
             "product_name_en": product_name_en,
             "product_link": product_link,
             "branded": branded,
-            "product_brand": product_brand,
-            "product_model": product_model,
             "product_weight": product_weight,
             "product_length": product_length,
             "product_width": product_width,
             "product_height": product_height,
             "contain_battery": contain_battery,
             "type_of_goods": type_of_goods,
-            "unit": unit,
-            "image_link": image_link,
-            "verify": verify,
             "product_declared_name_cn": product_declared_name_cn,
-            "product_declared_name": product_declared_name,
             "product_material": product_material,
-            "product_function": product_function,
             "export_country": export_country,
             "import_country": import_country,
-            "certificate_url_list": certificate_url_list,
-            "thirdparty_sku_mapping": thirdparty_sku_mapping,
-            "sn_info": sn_info,
-            "sku_wrapper_type": sku_wrapper_type,
-            "return_auth": return_auth,
-            "return_replacement_sku": return_replacement_sku,
-            "batch_management_enabled": batch_management_enabled,
-            "batch_info": batch_info,
-            "battery_info": battery_info,
-            "remark": remark,
         }
+        if reference_no:
+            payload["reference_no"] = reference_no
+        if product_brand:
+            payload["product_brand"] = product_brand
+        if product_model:
+            payload["product_model"] = product_model
+        if product_declared_name:
+            payload["product_declared_name"] = product_declared_name
+        if product_function:
+            payload["product_function"] = product_function
+        if verify:
+            payload["verify"] = verify
+        if unit and unit != "PCS":
+            payload["unit"] = unit
+        if image_link:
+            payload["image_link"] = image_link
+        if certificate_url_list:
+            payload["certificate_url_list"] = certificate_url_list
+        if thirdparty_sku_mapping:
+            payload["thirdparty_sku_mapping"] = thirdparty_sku_mapping
+        if sn_info:
+            payload["sn_info"] = sn_info
+        if sku_wrapper_type:
+            payload["sku_wrapper_type"] = sku_wrapper_type
+        if return_auth != 1:
+            payload["return_auth"] = return_auth
+        if return_replacement_sku:
+            payload["return_replacement_sku"] = return_replacement_sku
+        if batch_management_enabled:
+            payload["batch_management_enabled"] = batch_management_enabled
+        if batch_info:
+            payload["batch_info"] = batch_info
+        if battery_info:
+            payload["battery_info"] = battery_info
+        if remark:
+            payload["remark"] = remark
 
-        return await self._post("/public_open/product/add_product", data=payload)
+        return await self._post("/product/add_product", data=payload)
+    
+    # 获取系统品类
+    async def get_category(self):
+        return await self._post("/product/get_category")
+    
+    # 获取建议中文申报品名
+    async def get_declare_commodity_name_list(self):
+        return await self._post("/product/get_declare_commodity_name_list")
+    
+    # 获取建议材质
+    async def get_material_list(self):
+        return await self._post("/product/get_material_list")
+    
+    # 获取序列号列表
+    async def get_serial_number_list(
+        self,
+        status: Optional[int] = 1,
+        code_type: Optional[int] = 1,
+        code_value: Optional[str] = None,
+        time_type: Optional[int] = 1,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        ):
+        
+        payload = {}
+
+        if status:
+            payload["status"] = status
+        if code_type:
+            payload["code_type"] = code_type
+        if code_value:
+            payload["code_value"] = code_value
+        if time_type:
+            payload["time_type"] = time_type
+        if start_time:
+            payload["start_time"] = start_time
+        if end_time:
+            payload["end_time"] = end_time
+        
+        return await self._post("product/serial_number_list", data = payload)
+
 
 
 goodcang_product = GoodCangProduct()

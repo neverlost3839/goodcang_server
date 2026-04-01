@@ -124,7 +124,7 @@ class OrderBase(BaseModel):
 
 
 class OrderCreate(OrderBase):
-    pass
+    items: List[OrderItemBase] = Field(..., description="订单明细列表")
 
 
 class OrderUpdate(BaseModel):

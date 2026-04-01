@@ -9,15 +9,16 @@ class GoodCangBase:
 
     def __init__(self):
         self.base_url = settings.GOODCANG_API_HOST
-        self.api_key = settings.GOODCANG_API_KEY
-        self.client_code = settings.GOODCANG_CLIENT_CODE
+        self.app_key = settings.GOODCANG_APP_KEY
+        self.app_token = settings.GOODCANG_APP_TOKEN
 
     def _get_headers(self) -> dict:
         """获取请求头"""
         return {
             "Content-Type": "application/json",
-            "clientCode": self.client_code,
-            "apiKey": self.api_key,
+            "Accept": "application/json",
+            "app-key": self.app_key,
+            "app-token": self.app_token,
         }
 
     async def _post(
@@ -33,6 +34,8 @@ class GoodCangBase:
                 json=data,
                 headers=self._get_headers(),
             )
+            if not response.status_code == 200:
+                print(f"[DEBUG] API Error Response: {response.text}")
             response.raise_for_status()
             return response.json()
 

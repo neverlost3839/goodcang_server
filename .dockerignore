@@ -1,0 +1,7 @@
+.git
+.venv
+.ruff_cache
+docs
+sql
+*.md
+.env*

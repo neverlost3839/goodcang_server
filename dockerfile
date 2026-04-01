@@ -2,14 +2,14 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# 安装 uv
-RUN pip install uv
+# 使用清华镜像源
+RUN pip install uv -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 复制依赖文件
 COPY pyproject.toml ./
 
-# 安装依赖
-RUN uv sync --frozen || uv sync
+# 安装依赖 - 使用国内镜像
+RUN uv sync --frozen || uv sync -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 复制应用代码
 COPY . .

@@ -25,8 +25,10 @@ class Settings(BaseSettings):
 
     # GoodCang API 配置
     GOODCANG_API_HOST: str = "https://oms.goodcang.net/public_open"
-    GOODCANG_API_KEY: str = ""
-    GOODCANG_CLIENT_CODE: str = ""
+    # 参数名： app-key
+    GOODCANG_APP_KEY: str = "184d53746c55e89676734bbce8c6a103"
+    # 参数名： app-token
+    GOODCANG_APP_TOKEN: str = "83f106332386cfd3770d78d46f71da8b"
 
     @computed_field
     @property
