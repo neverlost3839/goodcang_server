@@ -1,85 +1,76 @@
-from datetime import datetime
-from typing import Optional
+from typing import Any, Optional, List
+from fastapi import APIRouter, Query
 
-from fastapi import APIRouter, Body, Depends, Path, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.client import order as order_client
 
-from app.db.session import get_db
-from app.schemas.common import PaginatedResponse, Response
-from app.schemas.order import OrderCreate, OrderOut, OrderUpdate
-from app.services.order_service import order_service
-
-router = APIRouter()
+router = APIRouter(tags=["订单"])
 
 
-@router.get("/get_list", response_model=PaginatedResponse[OrderOut])
-async def get_list(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    reference_no: Optional[str] = None,
-    platform: Optional[str] = None,
-    warehouse_code: Optional[str] = None,
-    country_code: Optional[str] = None,
-    name: Optional[str] = None,
-    phone: Optional[str] = None,
-    email: Optional[str] = None,
-    verify: Optional[int] = None,
-    order_code: Optional[str] = None,
-    updated_at_from: Optional[datetime] = None,
-    updated_at_to: Optional[datetime] = None,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await order_service.list(
-        db,
+@router.get("/get_order_by_code")
+async def get_order_by_code(
+    order_code: str = Query(..., description="订单号"),
+) -> Any:
+    """根据订单号获取单票订单信息"""
+    return await order_client.goodcang_order.get_order_by_code(
+        order_code=order_code,
+    )
+
+
+@router.get("/get_order_list")
+async def get_order_list(
+    page: int = Query(1, ge=1, description="当前页"),
+    page_size: int = Query(10, ge=1, le=100, description="每页数据长度"),
+    order_status: Optional[str] = Query(
+        None, description="订单状态: C待发货审核, W待发货, D已发货, H暂存"
+    ),
+    warehouse_code: Optional[str] = Query(None, description="仓库代码"),
+    shipping_method: Optional[str] = Query(None, description="物流产品代码"),
+    country_code: Optional[str] = Query(None, description="收件人国家"),
+    reference_no: Optional[str] = Query(None, description="客户参考号"),
+    order_code: Optional[str] = Query(None, description="订单号"),
+    date_type: Optional[int] = Query(
+        None, description="日期类型: 1创建时间, 2发货时间"
+    ),
+    date_from: Optional[str] = Query(None, description="开始日期"),
+    date_to: Optional[str] = Query(None, description="结束日期"),
+) -> Any:
+    """获取订单列表"""
+    return await order_client.goodcang_order.get_order_list(
         page=page,
         page_size=page_size,
-        reference_no=reference_no,
-        platform=platform,
+        order_status=order_status,
         warehouse_code=warehouse_code,
+        shipping_method=shipping_method,
         country_code=country_code,
-        name=name,
-        phone=phone,
-        email=email,
-        verify=verify,
+        reference_no=reference_no,
         order_code=order_code,
-        updated_at_from=updated_at_from,
-        updated_at_to=updated_at_to,
+        date_type=date_type,
+        date_from=date_from,
+        date_to=date_to,
     )
-    return PaginatedResponse(data=result)
 
 
-@router.get("/get_detail", response_model=Response[OrderOut])
-async def get_detail(
-    id: int = Query(..., description="订单ID"),
-    db: AsyncSession = Depends(get_db),
-):
-    result = await order_service.get(db, id=id)
-    return Response(data=result)
+@router.get("/get_draft_order_list")
+async def get_draft_order_list(
+    page: int = Query(1, ge=1, description="当前页"),
+    page_size: int = Query(10, ge=1, le=100, description="每页数据长度"),
+    warehouse_code: Optional[str] = Query(None, description="仓库代码"),
+    reference_no: Optional[str] = Query(None, description="客户参考号"),
+) -> Any:
+    """获取草稿订单列表"""
+    return await order_client.goodcang_order.get_draft_order_list(
+        page=page,
+        page_size=page_size,
+        warehouse_code=warehouse_code,
+        reference_no=reference_no,
+    )
 
 
-@router.post("/create", response_model=Response[OrderOut])
-async def create(
-    obj_in: OrderCreate,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await order_service.create(db, obj_in=obj_in)
-    return Response(data=result)
-
-
-@router.put("/update/{id}", response_model=Response[OrderOut])
-async def update(
-    id: int = Path(..., description="订单ID"),
-    obj_in: OrderUpdate = Body(...),
-    db: AsyncSession = Depends(get_db),
-):
-    result = await order_service.update(db, id=id, obj_in=obj_in)
-    return Response(data=result)
-
-
-@router.delete("/delete", response_model=Response[bool])
-async def delete(
-    id: int = Query(..., description="订单ID"),
-    db: AsyncSession = Depends(get_db),
-):
-    result = await order_service.delete(db, id=id)
-    return Response(data=result)
+@router.post("/batch_query_tracking_status")
+async def batch_query_tracking_status(
+    tracking_numbers: List[str] = Query(..., description="物流追踪号数组"),
+) -> Any:
+    """批量查询物流追踪状态"""
+    return await order_client.goodcang_order.batch_query_tracking_status(
+        tracking_numbers=tracking_numbers,
+    )

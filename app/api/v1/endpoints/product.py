@@ -1,77 +1,74 @@
-from datetime import datetime
-from typing import Optional
+from typing import Any, Optional, List
+from fastapi import APIRouter, Query
 
-from fastapi import APIRouter, Body, Depends, Path, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.client import product as product_client
 
-from app.db.session import get_db
-from app.schemas.common import PaginatedResponse, Response
-from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
-from app.services.product_service import product_service
-
-router = APIRouter()
+router = APIRouter(tags=["商品"])
 
 
-@router.get("/get_list", response_model=PaginatedResponse[ProductOut])
-async def get_list(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    product_sku: Optional[str] = None,
-    product_name_cn: Optional[str] = None,
-    product_name_en: Optional[str] = None,
-    product_brand: Optional[str] = None,
-    verify: Optional[int] = None,
-    updated_at_from: Optional[datetime] = None,
-    updated_at_to: Optional[datetime] = None,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await product_service.list(
-        db,
+@router.get("/get_category")
+async def get_category() -> Any:
+    """获取系统品类"""
+    return await product_client.goodcang_product.get_category()
+
+
+@router.get("/get_declare_commodity_name_list")
+async def get_declare_commodity_name_list() -> Any:
+    """获取建议中文申报品名"""
+    return await product_client.goodcang_product.get_declare_commodity_name_list()
+
+
+@router.get("/get_material_list")
+async def get_material_list() -> Any:
+    """获取建议材质"""
+    return await product_client.goodcang_product.get_material_list()
+
+
+@router.get("/get_product_sku_list")
+async def get_product_sku_list(
+    page: int = Query(1, ge=1, description="查询页数"),
+    page_size: int = Query(10, ge=1, le=200, description="每页显示的SKU数量"),
+    product_sku: Optional[str] = Query(None, description="SKU"),
+    product_sku_arr: Optional[List[str]] = Query(None, description="多个SKU数组"),
+    product_update_time_from: Optional[str] = Query(None, description="修改开始时间"),
+    product_update_time_to: Optional[str] = Query(None, description="修改结束时间"),
+) -> Any:
+    """获取商品列表"""
+    return await product_client.goodcang_product.get_product_sku_list(
         page=page,
         page_size=page_size,
         product_sku=product_sku,
-        product_name_cn=product_name_cn,
-        product_name_en=product_name_en,
-        product_brand=product_brand,
-        verify=verify,
-        updated_at_from=updated_at_from,
-        updated_at_to=updated_at_to,
+        product_sku_arr=product_sku_arr,
+        product_update_time_from=product_update_time_from,
+        product_update_time_to=product_update_time_to,
     )
-    return PaginatedResponse(data=result)
 
 
-@router.get("/get_detail", response_model=Response[ProductOut])
-async def get_detail(
-    id: int = Query(..., description="商品ID"),
-    db: AsyncSession = Depends(get_db),
-):
-    result = await product_service.get(db, id=id)
-    return Response(data=result)
-
-
-@router.post("/create", response_model=Response[ProductOut])
-async def create(
-    obj_in: ProductCreate,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await product_service.create(db, obj_in=obj_in)
-    return Response(data=result)
-
-
-@router.put("/update/{id}", response_model=Response[ProductOut])
-async def update(
-    id: int = Path(..., description="商品ID"),
-    obj_in: ProductUpdate = Body(...),
-    db: AsyncSession = Depends(get_db),
-):
-    result = await product_service.update(db, id=id, obj_in=obj_in)
-    return Response(data=result)
-
-
-@router.delete("/delete", response_model=Response[bool])
-async def delete(
-    id: int = Query(..., description="商品ID"),
-    db: AsyncSession = Depends(get_db),
-):
-    result = await product_service.delete(db, id=id)
-    return Response(data=result)
+@router.post("/serial_number_list")
+async def serial_number_list(
+    code_type: int = Query(
+        1, description="查询类型: 1序列号, 2商品编码, 3订单号, 4序列号集成码, 5入库单号"
+    ),
+    status: Optional[int] = Query(
+        None, description="状态: 0待收货, 1待出库, 2已出库, 3已废弃"
+    ),
+    code_value: Optional[str] = Query(None, description="查询值"),
+    time_type: int = Query(
+        1, description="查询时间类型: 1创建时间, 3出库时间, 4废弃时间"
+    ),
+    start_time: Optional[str] = Query(None, description="开始时间"),
+    end_time: Optional[str] = Query(None, description="结束时间"),
+    page: int = Query(1, ge=1, description="分页页码"),
+    page_size: int = Query(100, description="分页数量"),
+) -> Any:
+    """获取序列号列表"""
+    return await product_client.goodcang_product.serial_number_list(
+        code_type=code_type,
+        status=status,
+        code_value=code_value,
+        time_type=time_type,
+        start_time=start_time,
+        end_time=end_time,
+        page=page,
+        page_size=page_size,
+    )
