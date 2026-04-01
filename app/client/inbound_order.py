@@ -1,117 +1,223 @@
 from typing import Any, Optional, List
-from datetime import datetime
 from app.client.base import GoodCangBase
 
 
 class GoodCangInboundOrder(GoodCangBase):
     """GoodCang 入库单 API 客户端"""
 
-    async def create_grn(
+    async def get_vat_list(
         self,
-        transit_type: int,
-        receiving_shipping_type: int,
-        warehouse_code: str,
-        items: List[dict],
-        reference_no: Optional[str] = None,
-        sm_code: Optional[str] = None,
-        transit_warehouse_code: Optional[str] = None,
-        customs_type: Optional[int] = None,
-        collecting_service: Optional[int] = None,
-        collecting_time: Optional[datetime] = None,
-        value_add_service: Optional[str] = None,
-        clearance_service: Optional[int] = None,
-        import_company: Optional[int] = None,
-        export_company: Optional[int] = None,
-        car_model_code: Optional[str] = None,
-        tracking_number: Optional[str] = None,
-        eta_date: Optional[datetime] = None,
-        receiving_desc: Optional[str] = None,
-        verify: int = 0,
-        weight: Optional[float] = None,
-        volume: Optional[float] = None,
-        wp_code: Optional[str] = None,
-        is_delay: int = 0,
-        is_rollover: int = 0,
-        shiper_address: Optional[dict] = None,
-        collecting_address: Optional[List[dict]] = None,
-        customers_send_info: Optional[dict] = None,
+        page: int = 1,
+        page_size: int = 10,
     ) -> dict[str, Any]:
         """
-        创建入库单
+        获取进出口商列表
 
-        API文档: https://oms.goodcang.net/public_open/inbound_order/create_grn
+        API文档: https://oms.goodcang.net/public_open/inbound_order/get_vat_list
 
         Args:
-            transit_type: 入库单类型 (必填, 0-自发入库单, 3-中转入库单, 5-FBA入库单)
-            receiving_shipping_type: 运输方式 (必填, 0-空运, 1-海运散货, 2-快递, 3-铁运整柜, 4-海运整柜, 5-铁运散货)
-            warehouse_code: 海外仓仓库编码 (必填, 最大32字符)
-            items: 入库单明细 (必填, 数组)
-            reference_no: 参考号 (可选, 最大50字符)
-            sm_code: 物流产品 (中转特有, 最大255字符)
-            transit_warehouse_code: 中转仓仓库编码 (中转特有, 最大255字符)
-            customs_type: 报关方式 (中转特有, 0-EDI报关 1-委托报关 2-报关自理)
-            collecting_service: 揽收服务 (中转特有, 0-自送货物 1-上门提货)
-            collecting_time: 揽收时间 (中转特有)
-            value_add_service: 增值服务 (中转特有, world_ease-woordease服务, origin_crt-产地证, fumigation-熏蒸)
-            clearance_service: 是否自有税号清关 (中转特有, 0-否 1-是)
-            import_company: 进口商编码 (中转特有)
-            export_company: 出口商编码 (中转特有)
-            car_model_code: 车型 (中转特有, 最大255字符)
-            tracking_number: 跟踪号/海柜号 (可选, 最大35字符)
-            eta_date: 预计到达时间 (自发/FBA必填, 格式YYYY-MM-DD)
-            receiving_desc: 备注 (可选, 最大255字符)
-            verify: 是否审核 (可选, 0-新建不审核 1-新建并审核, 默认0)
-            weight: 重量(kg) (可选, 0.01-999999.99)
-            volume: 体积(立方米) (可选, 0.01-99999.99)
-            wp_code: 物理仓仓库代码 (可选)
-            is_delay: 是否递延 (可选, 0-否 1-是, 默认0)
-            is_rollover: 是否仓库装箱商品 (可选, 0-否 1-是, 默认0)
-            shiper_address: 发件人地址 (自发入库单)
-            collecting_address: 揽收地址 (中转特有,上门揽收时必填)
-            customers_send_info: 客户自送信息 (中转特有,自送货物时必填)
+            page: 当前页 (可选, 默认1)
+            page_size: 每页数据长度 (可选, 最大200, 默认10)
+
+        Returns:
+            dict: {
+                "ask": "Success",
+                "message": "",
+                "data": [...]
+            }
+        """
+        payload = {
+            "page": page,
+            "page_size": page_size,
+        }
+        return await self._post("/inbound_order/get_vat_list", data=payload)
+
+    async def get_smcode_twc_to_warehouse(self) -> dict[str, Any]:
+        """
+        获取物流产品与目的仓中转仓
+
+        API文档: https://oms.goodcang.net/public_open/inbound_order/get_smcode_twc_to_warehouse
 
         Returns:
             dict: {
                 "ask": "Success",
                 "message": "Success",
                 "data": {
-                    "receiving_code": "RVG296-190703-0001"
+                    "AIR": [...],
+                    "LCL": [...],
+                    "EXPRESS": [...],
+                    "FCL": [...]
+                }
+            }
+        """
+        return await self._post("/inbound_order/get_smcode_twc_to_warehouse", data={})
+
+    async def get_grn_list(
+        self,
+        page: int,
+        page_size: int,
+        receiving_code_arr: Optional[List[str]] = None,
+        create_date_from: Optional[str] = None,
+        create_date_to: Optional[str] = None,
+        modify_date_from: Optional[str] = None,
+        modify_date_to: Optional[str] = None,
+        is_rollover: Optional[int] = None,
+    ) -> dict[str, Any]:
+        """
+        获取入库单列表
+
+        API文档: https://oms.goodcang.net/public_open/inbound_order/get_grn_list
+
+        Args:
+            page: 当前页 (必填)
+            page_size: 每页数据长度 (必填, 最大100)
+            receiving_code_arr: 多个入库单号数组 (可选, 最多100)
+            create_date_from: 创建开始日期 (可选, 格式: YYYY-MM-DD HH:MM:SS)
+            create_date_to: 创建结束日期 (可选, 格式: YYYY-MM-DD HH:MM:SS)
+            modify_date_from: 修改开始时间 (可选)
+            modify_date_to: 修改结束时间 (可选)
+            is_rollover: 是否仓库装箱商品 (可选, 0否, 1是)
+
+        Returns:
+            dict: {
+                "ask": "Success",
+                "count": 2,
+                "data": [...],
+                "message": "Success"
+            }
+        """
+        payload = {
+            "page": page,
+            "page_size": page_size,
+        }
+        if receiving_code_arr:
+            payload["receiving_code_arr"] = receiving_code_arr
+        if create_date_from:
+            payload["create_date_from"] = create_date_from
+        if create_date_to:
+            payload["create_date_to"] = create_date_to
+        if modify_date_from:
+            payload["modify_date_from"] = modify_date_from
+        if modify_date_to:
+            payload["modify_date_to"] = modify_date_to
+        if is_rollover is not None:
+            payload["is_rollover"] = is_rollover
+
+        return await self._post("/inbound_order/get_grn_list", data=payload)
+
+    async def get_grn_detail(
+        self,
+        receiving_code: str,
+    ) -> dict[str, Any]:
+        """
+        获取入库单明细
+
+        API文档: https://oms.goodcang.net/public_open/inbound_order/get_grn_detail
+
+        Args:
+            receiving_code: 入库单号 (必填)
+
+        Returns:
+            dict: {
+                "ask": "Success",
+                "message": "",
+                "data": {
+                    "receiving_code": "RV000012-150716-0001",
+                    ...
                 }
             }
         """
         payload = {
-            "transit_type": transit_type,
-            "receiving_shipping_type": receiving_shipping_type,
-            "warehouse_code": warehouse_code,
-            "items": items,
-            "reference_no": reference_no,
-            "sm_code": sm_code,
-            "transit_warehouse_code": transit_warehouse_code,
-            "customs_type": customs_type,
-            "collecting_service": collecting_service,
-            "collecting_time": collecting_time.strftime("%Y-%m-%d %H:%M:%S")
-            if collecting_time
-            else None,
-            "value_add_service": value_add_service,
-            "clearance_service": clearance_service,
-            "import_company": import_company,
-            "export_company": export_company,
-            "car_model_code": car_model_code,
-            "tracking_number": tracking_number,
-            "eta_date": eta_date.strftime("%Y-%m-%d") if eta_date else None,
-            "receiving_desc": receiving_desc,
-            "verify": verify,
-            "weight": weight,
-            "volume": volume,
-            "wp_code": wp_code,
-            "is_delay": is_delay,
-            "is_rollover": is_rollover,
-            "shiper_address": shiper_address,
-            "collecting_address": collecting_address,
-            "customers_send_info": customers_send_info,
+            "receiving_code": receiving_code,
         }
+        return await self._post("/inbound_order/get_grn_detail", data=payload)
 
-        return await self._post("/inbound_order/create_grn", data=payload)
+    async def get_batch(
+        self,
+        receiving_code: str,
+    ) -> dict[str, Any]:
+        """
+        获取上架批次
+
+        API文档: https://oms.goodcang.net/public_open/inbound_order/get_batch
+
+        Args:
+            receiving_code: 入库单号 (必填)
+
+        Returns:
+            dict: {
+                "ask": "Success",
+                "message": "Success",
+                "data": [...]
+            }
+        """
+        payload = {
+            "receiving_code": receiving_code,
+        }
+        return await self._post("/inbound_order/get_batch", data=payload)
+
+    async def get_receipt_batch(
+        self,
+        receiving_code: str,
+    ) -> dict[str, Any]:
+        """
+        获取收货批次
+
+        API文档: https://oms.goodcang.net/public_open/inbound_order/get_receipt_batch
+
+        Args:
+            receiving_code: 入库单号 (必填)
+
+        Returns:
+            dict: {
+                "ask": "Success",
+                "message": "Success",
+                "data": {...}
+            }
+        """
+        payload = {
+            "receiving_code": receiving_code,
+        }
+        return await self._post("/inbound_order/get_receipt_batch", data=payload)
+
+    async def cars_model(self) -> dict[str, Any]:
+        """
+        获取车型
+
+        API文档: https://oms.goodcang.net/public_open/inbound_order/cars_model
+
+        Returns:
+            dict: {
+                "ask": "Success",
+                "message": "Success",
+                "data": {...}
+            }
+        """
+        return await self._post("/inbound_order/cars_model", data={})
+
+    async def get_clearance_document(
+        self,
+        receiving_list: List[str],
+    ) -> dict[str, Any]:
+        """
+        获取清关文件上传状态
+
+        API文档: https://oms.goodcang.net/public_open/inbound_order/get_clearance_document
+
+        Args:
+            receiving_list: 入库单号数组 (必填)
+
+        Returns:
+            dict: {
+                "ask": "Success",
+                "message": "Success",
+                "data": [...]
+            }
+        """
+        payload = {
+            "receiving_list": receiving_list,
+        }
+        return await self._post("/inbound_order/get_clearance_document", data=payload)
 
 
 goodcang_inbound_order = GoodCangInboundOrder()
