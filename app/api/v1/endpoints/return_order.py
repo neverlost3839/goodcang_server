@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from fastapi import APIRouter, Query
 
-from app.client import return_order as return_order_client
+from app.services.return_order_service import return_order_service
 
 router = APIRouter(tags=["退货单"])
 
@@ -12,7 +12,7 @@ async def search(
     asro_codes: Optional[str] = Query(None, description="退件单号"),
 ) -> Any:
     """退货单查询"""
-    return await return_order_client.goodcang_return_order.search(
+    return await return_order_service.search(
         reference_no=reference_no,
         asro_codes=asro_codes,
     )
@@ -31,7 +31,7 @@ async def get_list(
     asro_codes: Optional[str] = Query(None, description="退件单号"),
 ) -> Any:
     """退货单列表"""
-    return await return_order_client.goodcang_return_order.list(
+    return await return_order_service.get_list(
         current_page=current_page,
         page_size=page_size,
         start_time=start_time,
@@ -52,7 +52,7 @@ async def unauthorized_list(
     end_time: Optional[str] = Query(None, description="创建结束时间"),
 ) -> Any:
     """未预报退件列表"""
-    return await return_order_client.goodcang_return_order.unauthorized_list(
+    return await return_order_service.unauthorized_list(
         current_page=current_page,
         page_size=page_size,
         start_time=start_time,
@@ -69,7 +69,7 @@ async def claim_order_list(
     claim_status: Optional[int] = Query(None, description="索赔状态"),
 ) -> Any:
     """索赔单列表"""
-    return await return_order_client.goodcang_return_order.claim_order_list(
+    return await return_order_service.claim_order_list(
         current_page=current_page,
         page_size=page_size,
         start_time=start_time,
@@ -81,7 +81,7 @@ async def claim_order_list(
 @router.get("/get_service_config")
 async def get_service_config() -> Any:
     """获取退件服务配置"""
-    return await return_order_client.goodcang_return_order.get_service_config()
+    return await return_order_service.get_service_config()
 
 
 @router.get("/claim_order_details")
@@ -89,6 +89,6 @@ async def claim_order_details(
     claim_code: str = Query(..., description="索赔单号"),
 ) -> Any:
     """索赔单详情"""
-    return await return_order_client.goodcang_return_order.claim_order_details(
+    return await return_order_service.claim_order_details(
         claim_code=claim_code,
     )

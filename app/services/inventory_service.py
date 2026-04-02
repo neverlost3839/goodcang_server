@@ -201,5 +201,80 @@ class InventoryService:
             "warehouses": warehouses,
         }
 
+    async def get_product_inventory(
+        self,
+        page: int = 1,
+        page_size: int = 10,
+        product_sku: Optional[str] = None,
+        product_sku_arr: Optional[List[str]] = None,
+        warehouse_code: Optional[str] = None,
+        warehouse_code_arr: Optional[List[str]] = None,
+    ) -> Any:
+        """获取库存"""
+        return await goodcang_inventory.get_product_inventory(
+            page=page,
+            page_size=page_size,
+            product_sku=product_sku,
+            product_sku_arr=product_sku_arr,
+            warehouse_code=warehouse_code,
+            warehouse_code_arr=warehouse_code_arr,
+        )
+
+    async def get_inventory_log(
+        self,
+        page: int = 1,
+        page_size: int = 10,
+        warehouse_code: Optional[str] = None,
+        application_code: Optional[str] = None,
+        reference_no_list: Optional[List[str]] = None,
+        product_sku_list: Optional[List[str]] = None,
+        create_date_from: Optional[str] = None,
+        create_date_end: Optional[str] = None,
+    ) -> Any:
+        """获取库存动态列表"""
+        return await goodcang_inventory.get_inventory_log(
+            page=page,
+            page_size=page_size,
+            warehouse_code=warehouse_code,
+            application_code=application_code,
+            reference_no_list=reference_no_list,
+            product_sku_list=product_sku_list,
+            create_date_from=create_date_from,
+            create_date_end=create_date_end,
+        )
+
+    async def inventory_age_list(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+        product_sku_list: Optional[List[str]] = None,
+        product_title: Optional[str] = None,
+        product_title_en: Optional[str] = None,
+        fifo_time_from: Optional[str] = None,
+        fifo_time_to: Optional[str] = None,
+        age_from: Optional[int] = None,
+        age_to: Optional[int] = None,
+        quantity_from: Optional[int] = None,
+        quantity_to: Optional[int] = None,
+        warning_age_type: Optional[int] = None,
+        warehouse_code: Optional[str] = None,
+    ) -> Any:
+        """获取库龄列表"""
+        return await goodcang_inventory.inventory_age_list(
+            page=page,
+            page_size=page_size,
+            product_sku_list=product_sku_list,
+            product_title=product_title,
+            product_title_en=product_title_en,
+            fifo_time_from=fifo_time_from,
+            fifo_time_to=fifo_time_to,
+            age_from=age_from,
+            age_to=age_to,
+            quantity_from=quantity_from,
+            quantity_to=quantity_to,
+            warning_age_type=warning_age_type,
+            warehouse_code=warehouse_code,
+        )
+
 
 inventory_service = InventoryService()

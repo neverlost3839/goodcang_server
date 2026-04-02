@@ -1,7 +1,7 @@
 from typing import Any, Optional, List
 from fastapi import APIRouter, Query
 
-from app.client import inventory as inventory_client
+from app.services.inventory_service import inventory_service
 
 router = APIRouter(tags=["库存"])
 
@@ -18,7 +18,7 @@ async def get_product_inventory(
     ),
 ) -> Any:
     """获取库存"""
-    return await inventory_client.goodcang_inventory.get_product_inventory(
+    return await inventory_service.get_product_inventory(
         page=page,
         page_size=page_size,
         product_sku=product_sku,
@@ -33,14 +33,14 @@ async def get_inventory_log(
     page: int = Query(1, ge=1, description="当前页"),
     page_size: int = Query(10, ge=1, le=200, description="每页数据长度"),
     warehouse_code: Optional[str] = Query(None, description="仓库代码"),
-    application_code: Optional[int] = Query(None, description="操作类型"),
+    application_code: Optional[str] = Query(None, description="操作类型"),
     reference_no_list: Optional[List[str]] = Query(None, description="操作单号数组"),
     product_sku_list: Optional[List[str]] = Query(None, description="多个SKU数组"),
     create_date_from: Optional[str] = Query(None, description="操作开始时间"),
     create_date_end: Optional[str] = Query(None, description="操作结束时间"),
 ) -> Any:
     """获取库存动态列表"""
-    return await inventory_client.goodcang_inventory.get_inventory_log(
+    return await inventory_service.get_inventory_log(
         page=page,
         page_size=page_size,
         warehouse_code=warehouse_code,
@@ -71,7 +71,7 @@ async def inventory_age_list(
     warehouse_code: Optional[str] = Query(None, description="仓库代码"),
 ) -> Any:
     """获取库龄列表"""
-    return await inventory_client.goodcang_inventory.inventory_age_list(
+    return await inventory_service.inventory_age_list(
         page=page,
         page_size=page_size,
         product_sku_list=product_sku_list,

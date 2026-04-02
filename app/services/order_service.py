@@ -243,5 +243,67 @@ class OrderService:
         await crud_order.delete(db, id=id)
         return True
 
+    async def get_order_by_code(
+        self,
+        order_code: str,
+    ) -> Any:
+        """根据订单号获取单票订单信息"""
+        return await goodcang_order.get_order_by_code(
+            order_code=order_code,
+        )
+
+    async def get_order_list(
+        self,
+        page: int = 1,
+        page_size: int = 10,
+        order_status: Optional[str] = None,
+        warehouse_code: Optional[str] = None,
+        shipping_method: Optional[str] = None,
+        country_code: Optional[str] = None,
+        reference_no: Optional[str] = None,
+        order_code: Optional[str] = None,
+        date_type: Optional[int] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+    ) -> Any:
+        """获取订单列表"""
+        return await goodcang_order.get_order_list(
+            page=page,
+            page_size=page_size,
+            order_status=order_status,
+            warehouse_code=warehouse_code,
+            shipping_method=shipping_method,
+            country_code=country_code,
+            reference_no=reference_no,
+            order_code=order_code,
+            date_type=date_type,
+            date_from=date_from,
+            date_to=date_to,
+        )
+
+    async def get_draft_order_list(
+        self,
+        page: int = 1,
+        page_size: int = 10,
+        warehouse_code: Optional[str] = None,
+        reference_no: Optional[str] = None,
+    ) -> Any:
+        """获取草稿订单列表"""
+        return await goodcang_order.get_draft_order_list(
+            page=page,
+            page_size=page_size,
+            warehouse_code=warehouse_code,
+            reference_no=reference_no,
+        )
+
+    async def batch_query_tracking_status(
+        self,
+        tracking_numbers: List[str],
+    ) -> Any:
+        """批量查询物流追踪状态"""
+        return await goodcang_order.batch_query_tracking_status(
+            tracking_numbers=tracking_numbers,
+        )
+
 
 order_service = OrderService()

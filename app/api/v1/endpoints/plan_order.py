@@ -1,7 +1,7 @@
 from typing import Any, Optional, List
 from fastapi import APIRouter, Query
 
-from app.client import plan_order as plan_order_client
+from app.services.plan_order_service import plan_order_service
 
 router = APIRouter(tags=["计划单"])
 
@@ -23,7 +23,7 @@ async def plan_order_list(
     end_time: Optional[str] = Query(None, description="截止时间"),
 ) -> Any:
     """获取计划单列表"""
-    return await plan_order_client.goodcang_plan_order.list(
+    return await plan_order_service.list(
         page=page,
         page_size=page_size,
         order_status=order_status,
@@ -56,7 +56,7 @@ async def plan_order_box_list(
     end_time: Optional[str] = Query(None, description="截止时间"),
 ) -> Any:
     """获取装箱列表"""
-    return await plan_order_client.goodcang_plan_order.box_list(
+    return await plan_order_service.box_list(
         page=page,
         page_size=page_size,
         box_status=box_status,

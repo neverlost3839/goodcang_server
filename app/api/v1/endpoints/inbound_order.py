@@ -1,7 +1,7 @@
 from typing import Any, Optional, List
 from fastapi import APIRouter, Query
 
-from app.client import inbound_order as inbound_order_client
+from app.services.inbound_order_service import inbound_order_service
 
 router = APIRouter(tags=["入库单"])
 
@@ -12,7 +12,7 @@ async def get_vat_list(
     page_size: int = Query(10, description="每页数据长度"),
 ) -> Any:
     """获取进出口商列表"""
-    return await inbound_order_client.goodcang_inbound_order.get_vat_list(
+    return await inbound_order_service.get_vat_list(
         page=page,
         page_size=page_size,
     )
@@ -21,9 +21,7 @@ async def get_vat_list(
 @router.get("/get_smcode_twc_to_warehouse")
 async def get_smcode_twc_to_warehouse() -> Any:
     """获取物流产品与目的仓中转仓"""
-    return (
-        await inbound_order_client.goodcang_inbound_order.get_smcode_twc_to_warehouse()
-    )
+    return await inbound_order_service.get_smcode_twc_to_warehouse()
 
 
 @router.get("/get_grn_list")
@@ -40,7 +38,7 @@ async def get_grn_list(
     is_rollover: Optional[int] = Query(None, description="是否仓库装箱商品: 0否, 1是"),
 ) -> Any:
     """获取入库单列表"""
-    return await inbound_order_client.goodcang_inbound_order.get_grn_list(
+    return await inbound_order_service.get_grn_list(
         page=page,
         page_size=page_size,
         receiving_code_arr=receiving_code_arr,
@@ -57,7 +55,7 @@ async def get_grn_detail(
     receiving_code: str = Query(..., description="入库单号"),
 ) -> Any:
     """获取入库单明细"""
-    return await inbound_order_client.goodcang_inbound_order.get_grn_detail(
+    return await inbound_order_service.get_grn_detail(
         receiving_code=receiving_code,
     )
 
@@ -67,7 +65,7 @@ async def get_batch(
     receiving_code: str = Query(..., description="入库单号"),
 ) -> Any:
     """获取上架批次"""
-    return await inbound_order_client.goodcang_inbound_order.get_batch(
+    return await inbound_order_service.get_batch(
         receiving_code=receiving_code,
     )
 
@@ -77,7 +75,7 @@ async def get_receipt_batch(
     receiving_code: str = Query(..., description="入库单号"),
 ) -> Any:
     """获取收货批次"""
-    return await inbound_order_client.goodcang_inbound_order.get_receipt_batch(
+    return await inbound_order_service.get_receipt_batch(
         receiving_code=receiving_code,
     )
 
@@ -85,7 +83,7 @@ async def get_receipt_batch(
 @router.get("/cars_model")
 async def cars_model() -> Any:
     """获取车型"""
-    return await inbound_order_client.goodcang_inbound_order.cars_model()
+    return await inbound_order_service.cars_model()
 
 
 @router.post("/get_clearance_document")
@@ -93,6 +91,6 @@ async def get_clearance_document(
     receiving_list: List[str] = Query(..., description="入库单号数组"),
 ) -> Any:
     """获取清关文件上传状态"""
-    return await inbound_order_client.goodcang_inbound_order.get_clearance_document(
+    return await inbound_order_service.get_clearance_document(
         receiving_list=receiving_list,
     )

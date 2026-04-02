@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from fastapi import APIRouter, Query
 
-from app.client import finance as finance_client
+from app.services.finance_service import finance_service
 
 router = APIRouter(tags=["财务"])
 
@@ -16,7 +16,7 @@ async def get_wh_inventory_storage(
     dateTo: Optional[str] = Query(None, description="结束时间"),
 ) -> Any:
     """获取仓租信息 (V1版本)"""
-    return await finance_client.goodcang_finance.get_wh_inventory_storage(
+    return await finance_service.get_wh_inventory_storage(
         page=page,
         page_size=page_size,
         wis_code=wis_code,
@@ -31,7 +31,7 @@ async def get_wh_inventory_storage_detail(
     wis_code: str = Query(..., description="仓租单号"),
 ) -> Any:
     """获取仓租明细 (V1版本)"""
-    return await finance_client.goodcang_finance.get_wh_inventory_storage_detail(
+    return await finance_service.get_wh_inventory_storage_detail(
         wis_code=wis_code,
     )
 
@@ -54,7 +54,7 @@ async def cost_flow_list(
     prev_page_token: Optional[str] = Query(None, description="上一页token"),
 ) -> Any:
     """获取费用流水 (V2版本)"""
-    return await finance_client.goodcang_finance.cost_flow_list(
+    return await finance_service.cost_flow_list(
         page=page,
         page_size=page_size,
         happen_start_time=happen_start_time,
@@ -86,7 +86,7 @@ async def top_up_record(
     account_code: Optional[str] = Query(None, description="账户编码"),
 ) -> Any:
     """获取充值明细 (V2版本)"""
-    return await finance_client.goodcang_finance.top_up_record(
+    return await finance_service.top_up_record(
         code_field=code_field,
         page=page,
         page_size=page_size,

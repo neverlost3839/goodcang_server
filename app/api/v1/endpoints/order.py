@@ -1,7 +1,7 @@
 from typing import Any, Optional, List
 from fastapi import APIRouter, Query
 
-from app.client import order as order_client
+from app.services.order_service import order_service
 
 router = APIRouter(tags=["订单"])
 
@@ -11,7 +11,7 @@ async def get_order_by_code(
     order_code: str = Query(..., description="订单号"),
 ) -> Any:
     """根据订单号获取单票订单信息"""
-    return await order_client.goodcang_order.get_order_by_code(
+    return await order_service.get_order_by_code(
         order_code=order_code,
     )
 
@@ -35,7 +35,7 @@ async def get_order_list(
     date_to: Optional[str] = Query(None, description="结束日期"),
 ) -> Any:
     """获取订单列表"""
-    return await order_client.goodcang_order.get_order_list(
+    return await order_service.get_order_list(
         page=page,
         page_size=page_size,
         order_status=order_status,
@@ -58,7 +58,7 @@ async def get_draft_order_list(
     reference_no: Optional[str] = Query(None, description="客户参考号"),
 ) -> Any:
     """获取草稿订单列表"""
-    return await order_client.goodcang_order.get_draft_order_list(
+    return await order_service.get_draft_order_list(
         page=page,
         page_size=page_size,
         warehouse_code=warehouse_code,
@@ -71,6 +71,6 @@ async def batch_query_tracking_status(
     tracking_numbers: List[str] = Query(..., description="物流追踪号数组"),
 ) -> Any:
     """批量查询物流追踪状态"""
-    return await order_client.goodcang_order.batch_query_tracking_status(
+    return await order_service.batch_query_tracking_status(
         tracking_numbers=tracking_numbers,
     )
