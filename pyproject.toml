@@ -1,7 +1,7 @@
 [project]
 name = "goodcang_server"
 version = "0.1.0"
-description = "开发中心服务 - 站点池、产品池、调研、项目、开发产品全流程管理"
+description = "谷仓第三方接口封装"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
